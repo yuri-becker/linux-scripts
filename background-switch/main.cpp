@@ -1,4 +1,4 @@
-#include <iostream>
+#include <iostream> 
 #include <dirent.h>
 #include <vector>
 #include <string>
@@ -10,7 +10,7 @@ using namespace std;
 
 int printUsage()
 {
-    cout << "Usage:" << endl <<"    background-switch <directory> <tag>";
+    cout << "Usage:" << endl <<"    background-switch <directory> <tag|all> [gnome]";
     return 0;
 }
 
@@ -44,9 +44,10 @@ string getRandomFile(vector<string> files)
 
 int main(int argc, char *argv[])
 {
-    if(argc != 3) return printUsage();
+    if(argc < 3) return printUsage();
     char* directory = argv[1];
     char* tag = argv[2];
+    bool isGnome = sizeof(argv) >= 4 && string(argv[3]) == "gnome";
 
     DIR* dirStream = opendir(directory);
     if(dirStream == 0) return printUsage();
@@ -58,7 +59,9 @@ int main(int argc, char *argv[])
     string file = getRandomFile(files);
     string fullFileDir = string(directory).append("/").append(file);
 
-    system(string("feh --bg-fill ").append(fullFileDir).c_str());
+    string command = !isGnome ? string("feh --bg-fill \"").append(fullFileDir).append("\"") : string("gsettings set org.gnome.desktop.background picture-uri \"file:\/\/").append(fullFileDir).append("\"");
+    cout << "Executing " << command << endl;
+    system(command.c_str());
 
     return 0;
 }
